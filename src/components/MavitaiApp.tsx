@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   Flame, 
   Coins, 
@@ -30,6 +30,12 @@ import {
 } from "lucide-react";
 
 import MavicoinsModal from "./MavicoinsModal";
+import AuthModal from "./AuthModal";
+import {
+  formatGuestRemaining,
+  MAVICOINS_GUEST_NOTICE,
+  useGuestTrial,
+} from "@/hooks/useGuestTrial";
 
 type PlanType = "FREE" | "BASIC" | "DIAMOND";
 type TabType = "feed" | "workouts" | "ai-scanner" | "daily-challenges" | "mavi-assistant";
@@ -71,6 +77,13 @@ export function FittarApp() {
   const [streakDays, setStreakDays] = useState<number>(7);
   const [hasDoneDailyCheckin, setHasDoneDailyCheckin] = useState<boolean>(true);
   const [scansUsedToday, setScansUsedToday] = useState<number>(0);
+  const [userName, setUserName] = useState<string>("");
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authNotice, setAuthNotice] = useState<string | undefined>(undefined);
+
+  const isAuthenticated = userName.trim().length > 0;
+  const { remainingSeconds, isTrialExpired } = useGuestTrial(isAuthenticated);
+  const authBlocking = !isAuthenticated && isTrialExpired;
   
   // Modais e Navegação
   const [activeTab, setActiveTab] = useState<TabType>("feed");
@@ -152,10 +165,43 @@ export function FittarApp() {
     }
   ]);
 
+  useEffect(() => {
+    if (!authBlocking) return;
+    setAuthNotice("O tempo de visitante acabou. Entre ou crie uma conta para continuar.");
+    setIsAuthModalOpen(true);
+  }, [authBlocking]);
+
+  const requestMavicoins = (amount: number) => {
+    if (!isAuthenticated) {
+      setAuthNotice(MAVICOINS_GUEST_NOTICE);
+      setIsAuthModalOpen(true);
+      return false;
+    }
+    setFitcoins((prev) => prev + amount);
+    return true;
+  };
+
+  const dismissAuth = () => {
+    if (authBlocking) return;
+    setIsAuthModalOpen(false);
+    setAuthNotice(undefined);
+  };
+
+  const handleLoginSuccess = (name: string, bonusMavicoins: number = 0) => {
+    setUserName(name);
+    if (bonusMavicoins > 0) {
+      setFitcoins((prev) => prev + bonusMavicoins);
+    }
+    setIsAuthModalOpen(false);
+    setAuthNotice(undefined);
+  };
+
   const handleCompleteChallenge = (id: string) => {
+    const challenge = challenges.find((ch) => ch.id === id);
+    if (!challenge || challenge.completed) return;
+    if (!requestMavicoins(challenge.reward)) return;
     setChallenges(prev => prev.map(ch => {
       if (ch.id === id && !ch.completed) {
-        setFitcoins(f => f + ch.reward);
         return { ...ch, progress: ch.target, completed: true };
       }
       return ch;
@@ -240,12 +286,11 @@ export function FittarApp() {
   ]);
 
   const handleDailyCheckin = () => {
-    if (!hasDoneDailyCheckin) {
-      setHasDoneDailyCheckin(true);
-      setStreakDays(prev => prev + 1);
-      setFitcoins(prev => prev + 50);
-      alert("✅ Check-in diário realizado com sucesso! Você ganhou +50 Mavicoins!");
-    }
+    if (hasDoneDailyCheckin) return;
+    if (!requestMavicoins(50)) return;
+    setHasDoneDailyCheckin(true);
+    setStreakDays(prev => prev + 1);
+    alert("✅ Check-in diário realizado com sucesso! Você ganhou +50 Mavicoins!");
   };
 
   const handleBuyExtraScan = (cost: number, scanAmount: number) => {
@@ -309,6 +354,16 @@ export function FittarApp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-12">
+      {!isAuthenticated && (
+        <div className="bg-slate-900 border-b border-slate-800 px-4 py-2">
+          <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 text-xs text-slate-300">
+            <span className="font-semibold text-slate-100">Modo visitante</span>
+            <span className="font-mono tabular-nums text-emerald-400">
+              {formatGuestRemaining(remainingSeconds)}
+            </span>
+          </div>
+        </div>
+      )}
       {/* HEADER SUPERIOR FIXO */}
       <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
@@ -360,6 +415,22 @@ export function FittarApp() {
 
           {/* GAMIFICAÇÃO & SALDO */}
           <div className="flex items-center gap-2">
+            {isAuthenticated ? (
+              <span className="text-[11px] font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-full">
+                Olá, {userName}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthNotice(undefined);
+                  setIsAuthModalOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-full text-xs font-bold border border-slate-700 text-slate-200 hover:bg-slate-800 transition"
+              >
+                Entrar / Criar Conta
+              </button>
+            )}
             <button
               onClick={handleDailyCheckin}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border ${
@@ -984,6 +1055,14 @@ export function FittarApp() {
         onClose={() => setIsFitcoinsModalOpen(false)}
         initialTab={fitcoinsModalTab}
         userBalance={mavicoins}
+        onClaimReward={requestMavicoins}
+      />
+      <AuthModal
+        isOpen={isAuthModalOpen || authBlocking}
+        onClose={dismissAuth}
+        onLoginSuccess={handleLoginSuccess}
+        blocking={authBlocking}
+        notice={authNotice}
       />
     </div>
   );

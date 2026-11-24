@@ -1,15 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, User, Mail, Lock, Target, Gift, ArrowRight, CheckCircle2, Calendar, Scale, Ruler, Utensils } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: (userName: string, bonusFitcoins?: number) => void;
+  blocking?: boolean;
+  notice?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
+export default function AuthModal({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+  blocking = false,
+  notice,
+}: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('register');
   const [step, setStep] = useState<number>(1);
 
@@ -29,6 +37,15 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
 
   // Etapa 4: Objetivos (Até 3 opções)
   const [selectedGoals, setSelectedGoals] = useState<string[]>(['Perder Peso & Definir']);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !blocking) onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, blocking, onClose]);
 
   if (!isOpen) return null;
 
@@ -72,15 +89,32 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-[#0d1527] border border-slate-800 w-full max-w-lg rounded-2xl p-6 relative shadow-2xl my-8">
-        {/* Botão Fechar */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-600 hover:text-slate-900 p-1 rounded-lg hover:bg-white transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto"
+      onMouseDown={(event) => {
+        if (blocking) return;
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="bg-[#0d1527] border border-slate-800 w-full max-w-lg rounded-2xl p-6 relative shadow-2xl my-8"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        {!blocking && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-slate-600 hover:text-slate-900 p-1 rounded-lg hover:bg-white transition"
+            aria-label="Fechar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
+        {notice && (
+          <p className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-200">
+            {notice}
+          </p>
+        )}
 
         {/* Abas Login / Cadastro */}
         <div className="flex bg-[#080d1a] p-1 rounded-xl mb-6 border border-slate-800">

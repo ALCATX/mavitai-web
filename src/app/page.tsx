@@ -1,12 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PlanType } from '@/types/plans';
 import MavicoinsModal from '@/components/MavicoinsModal';
 import ScannerMaviModal from '@/components/ScannerMaviModal';
 import ShortsFeed from '@/components/ShortsFeed';
 import AuthModal from '@/components/AuthModal';
 import CorridaCard from '@/components/CorridaCard';
+import {
+  formatGuestRemaining,
+  MAVICOINS_GUEST_NOTICE,
+  useGuestTrial,
+} from '@/hooks/useGuestTrial';
+
+const DAILY_CHALLENGES = [
+  { id: 'checkin', label: 'Check-in diário', reward: 10 },
+  { id: 'photo', label: 'Postar foto de treino', reward: 25 },
+];
 
 export default function Dashboard() {
   const [userPlan, setUserPlan] = useState<PlanType>('FREE');
@@ -14,8 +24,14 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authNotice, setAuthNotice] = useState<string | undefined>(undefined);
   const [userName, setUserName] = useState<string>('');
   const [showUpsellBanner, setShowUpsellBanner] = useState<boolean>(false);
+  const [claimedChallenges, setClaimedChallenges] = useState<Record<string, boolean>>({});
+
+  const isAuthenticated = userName.trim().length > 0;
+  const { remainingSeconds, isTrialExpired } = useGuestTrial(isAuthenticated);
+  const authBlocking = !isAuthenticated && isTrialExpired;
 
   const handleAccessFitt = () => {
     if (userPlan !== 'DIAMOND') {
@@ -26,19 +42,53 @@ export default function Dashboard() {
     }
   };
 
-  const handleAddMavicoins = (amount: number) => {
+  useEffect(() => {
+    if (!authBlocking) return;
+    setAuthNotice('O tempo de visitante acabou. Entre ou crie uma conta para continuar.');
+    setIsAuthModalOpen(true);
+  }, [authBlocking]);
+
+  const requestMavicoins = (amount: number) => {
+    if (!isAuthenticated) {
+      setAuthNotice(MAVICOINS_GUEST_NOTICE);
+      setIsAuthModalOpen(true);
+      return false;
+    }
     setMavicoins((prev) => prev + amount);
+    return true;
+  };
+
+  const claimDailyChallenge = (id: string, amount: number) => {
+    if (claimedChallenges[id]) return;
+    if (!requestMavicoins(amount)) return;
+    setClaimedChallenges((prev) => ({ ...prev, [id]: true }));
+  };
+
+  const dismissAuth = () => {
+    if (authBlocking) return;
+    setIsAuthModalOpen(false);
+    setAuthNotice(undefined);
   };
 
   const handleLoginSuccess = (name: string, bonusMavicoins: number = 0) => {
     setUserName(name);
     if (bonusMavicoins > 0) {
-      handleAddMavicoins(bonusMavicoins);
+      setMavicoins((prev) => prev + bonusMavicoins);
     }
+    setIsAuthModalOpen(false);
+    setAuthNotice(undefined);
   };
 
   return (
     <main ><div className="min-h-screen bg-slate-50 text-slate-900 p-6 pb-24">
+      {!isAuthenticated && (
+        <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600">
+          <span className="font-semibold text-slate-800">Modo visitante</span>
+          <span className="font-mono tabular-nums text-emerald-700">
+            {formatGuestRemaining(remainingSeconds)}
+          </span>
+        </div>
+      )}
       {/* HEADER */}
       <header className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center pb-6 border-b border-slate-800 gap-4">
         <div>
@@ -150,19 +200,23 @@ export default function Dashboard() {
         <div className="bg-white rounded-2xl p-6 border border-slate-200">
           <h3 className="text-lg font-bold mb-4">Desafios Diários</h3>
           <ul className="space-y-3 text-sm">
-            <li className="flex justify-between items-center p-2 bg-slate-900/50 rounded-lg">
-              <span>Check-in diário</span>
-              <span className="text-emerald-600 font-bold">+10 MV</span>
-            </li>
-            <li className="flex justify-between items-center p-2 bg-slate-900/50 rounded-lg">
-              <span>Postar foto de treino</span>
-              <span className="text-emerald-600 font-bold">+25 MV</span>
-            </li>
+            {DAILY_CHALLENGES.map((challenge) => (
+              <li key={challenge.id} className="flex justify-between items-center p-2 bg-slate-900/50 rounded-lg">
+                <span>{challenge.label}</span>
+                <button
+                  type="button"
+                  onClick={() => claimDailyChallenge(challenge.id, challenge.reward)}
+                  className="text-emerald-600 font-bold"
+                >
+                  {claimedChallenges[challenge.id] ? 'Resgatado' : `+${challenge.reward} MV`}
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
 {/* MONITOR DE CORRIDA */}
-<CorridaCard onEarnMavicoins={handleAddMavicoins} />
+<CorridaCard onEarnMavicoins={requestMavicoins} />
       {/* SEÇÃO DO SHORTS FEED (VÍDEOS CURTOS) */}
       <section className="max-w-6xl mx-auto border-t border-slate-800 pt-8">
         <div className="flex items-center justify-between mb-6">
@@ -174,16 +228,23 @@ export default function Dashboard() {
           </div>
         </div>
         
-        <ShortsFeed onEarnMavicoins={handleAddMavicoins} />
+        <ShortsFeed onEarnMavicoins={requestMavicoins} />
       </section>
 
       {/* MODAIS */}
-      <MavicoinsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} userBalance={mavicoins} />
+      <MavicoinsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        userBalance={mavicoins}
+        onClaimReward={requestMavicoins}
+      />
       <ScannerMaviModal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
       <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        isOpen={isAuthModalOpen || authBlocking}
+        onClose={dismissAuth}
         onLoginSuccess={handleLoginSuccess}
+        blocking={authBlocking}
+        notice={authNotice}
       />
   
     </div>

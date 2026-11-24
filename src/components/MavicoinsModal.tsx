@@ -7,10 +7,24 @@ interface MavicoinsModalProps {
   onClose: () => void;
   userBalance: number;
   initialTab?: 'buy' | 'challenges' | 'creator';
+  onClaimReward?: (amount: number) => boolean;
 }
 
-export default function MavicoinsModal({ isOpen, onClose, userBalance, initialTab = 'buy' }: MavicoinsModalProps) {
+export default function MavicoinsModal({
+  isOpen,
+  onClose,
+  userBalance,
+  initialTab = 'buy',
+  onClaimReward,
+}: MavicoinsModalProps) {
   const [activeTab, setActiveTab] = useState<'buy' | 'challenges' | 'creator'>(initialTab);
+  const [claimedRewards, setClaimedRewards] = useState<Record<string, boolean>>({});
+
+  const claimReward = (id: string, amount: number) => {
+    if (claimedRewards[id] || !onClaimReward) return;
+    if (!onClaimReward(amount)) return;
+    setClaimedRewards((prev) => ({ ...prev, [id]: true }));
+  };
 
   if (!isOpen) return null;
 
@@ -114,8 +128,12 @@ export default function MavicoinsModal({ isOpen, onClose, userBalance, initialTa
                   <h4 className="font-semibold text-slate-900">💧 Beber Água (Stories 24h)</h4>
                   <p className="text-xs text-slate-600">Poste uma foto/vídeo tomando água (a cada 3h)</p>
                 </div>
-                <button className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all">
-                  +10 Mavicoins
+                <button
+                  type="button"
+                  onClick={() => claimReward('water', 10)}
+                  className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all"
+                >
+                  {claimedRewards.water ? 'Resgatado' : '+10 Mavicoins'}
                 </button>
               </div>
 
@@ -124,8 +142,12 @@ export default function MavicoinsModal({ isOpen, onClose, userBalance, initialTa
                   <h4 className="font-semibold text-slate-900">🥗 Foto do Prato Saudável</h4>
                   <p className="text-xs text-slate-600">Publique sua refeição no Feed do app</p>
                 </div>
-                <button className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all">
-                  +20 Mavicoins
+                <button
+                  type="button"
+                  onClick={() => claimReward('meal', 20)}
+                  className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all"
+                >
+                  {claimedRewards.meal ? 'Resgatado' : '+20 Mavicoins'}
                 </button>
               </div>
 
@@ -134,8 +156,12 @@ export default function MavicoinsModal({ isOpen, onClose, userBalance, initialTa
                   <h4 className="font-semibold text-slate-900">🏋️ Check-in de Treino</h4>
                   <p className="text-xs text-slate-600">Vídeo curto de 15s treinando ou na academia</p>
                 </div>
-                <button className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all">
-                  +30 Mavicoins
+                <button
+                  type="button"
+                  onClick={() => claimReward('workout', 30)}
+                  className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all"
+                >
+                  {claimedRewards.workout ? 'Resgatado' : '+30 Mavicoins'}
                 </button>
               </div>
 
@@ -144,8 +170,12 @@ export default function MavicoinsModal({ isOpen, onClose, userBalance, initialTa
                   <h4 className="font-semibold text-slate-900">📹 Transmissão Live Fitness</h4>
                   <p className="text-xs text-slate-600">Faça uma live de no mínimo 15 minutos</p>
                 </div>
-                <button className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all">
-                  +100 Mavicoins
+                <button
+                  type="button"
+                  onClick={() => claimReward('live', 100)}
+                  className="bg-emerald-600/10 text-emerald-600 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-600 hover:text-slate-950 transition-all"
+                >
+                  {claimedRewards.live ? 'Resgatado' : '+100 Mavicoins'}
                 </button>
               </div>
             </div>
