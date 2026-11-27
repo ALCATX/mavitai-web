@@ -103,7 +103,7 @@ export default function AuthModal({
         {!blocking && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-600 hover:text-slate-900 p-1 rounded-lg hover:bg-white transition"
+            className="absolute top-4 right-4 text-slate-300 hover:text-white p-1 rounded-lg hover:bg-white transition"
             aria-label="Fechar"
           >
             <X className="w-5 h-5" />
@@ -121,7 +121,7 @@ export default function AuthModal({
           <button
             onClick={() => { setActiveTab('login'); setStep(1); }}
             className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
-              activeTab === 'login' ? 'bg-emerald-600 text-slate-950 shadow' : 'text-slate-600 hover:text-slate-900'
+              activeTab === 'login' ? 'bg-emerald-600 text-slate-950 shadow' : 'text-slate-300 hover:text-white'
             }`}
           >
             Entrar
@@ -129,7 +129,7 @@ export default function AuthModal({
           <button
             onClick={() => setActiveTab('register')}
             className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
-              activeTab === 'register' ? 'bg-emerald-600 text-slate-950 shadow' : 'text-slate-600 hover:text-slate-900'
+              activeTab === 'register' ? 'bg-emerald-600 text-slate-950 shadow' : 'text-slate-300 hover:text-white'
             }`}
           >
             Cadastrar
@@ -140,12 +140,12 @@ export default function AuthModal({
         {activeTab === 'login' && (
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="text-center mb-4">
-              <h3 className="text-xl font-bold text-slate-900">Bem-vindo de volta!</h3>
-              <p className="text-xs text-slate-600 mt-1">Acesse sua conta no MAVITAI para continuar seus treinos.</p>
+              <h3 className="text-xl font-bold text-white">Bem-vindo de volta!</h3>
+              <p className="text-xs text-slate-300 mt-1">Acesse sua conta no MAVITAI para continuar seus treinos.</p>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">E-mail</label>
+              <label className="block text-xs font-medium text-slate-200 mb-1">E-mail</label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                 <input
@@ -154,13 +154,13 @@ export default function AuthModal({
                   placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                  className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-300"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Senha</label>
+              <label className="block text-xs font-medium text-slate-200 mb-1">Senha</label>
               <div className="relative">
                 <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                 <input
@@ -169,7 +169,7 @@ export default function AuthModal({
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                  className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
             </div>
@@ -208,12 +208,12 @@ export default function AuthModal({
             {step === 1 && (
               <form onSubmit={handleNextStep} className="space-y-4">
                 <div className="text-center mb-4">
-                  <h3 className="text-lg font-bold text-slate-900">Criar sua Conta</h3>
-                  <p className="text-xs text-slate-600 mt-1">Passo 1 de 5: Seus dados de acesso</p>
+                  <h3 className="text-lg font-bold text-white">Criar sua Conta</h3>
+                  <p className="text-xs text-slate-300 mt-1">Passo 1 de 5: Seus dados de acesso</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Nome Completo</label>
+                  <label className="block text-xs font-medium text-slate-200 mb-1">Nome Completo</label>
                   <div className="relative">
                     <User className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                     <input
@@ -222,13 +222,13 @@ export default function AuthModal({
                       placeholder="Seu nome"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">E-mail</label>
+                  <label className="block text-xs font-medium text-slate-200 mb-1">E-mail</label>
                   <div className="relative">
                     <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                     <input
@@ -237,13 +237,13 @@ export default function AuthModal({
                       placeholder="seu@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500 text-white placeholder:text-slate-300"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Senha</label>
+                  <label className="block text-xs font-medium text-slate-200 mb-1">Senha</label>
                   <div className="relative">
                     <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                     <input
@@ -252,7 +252,7 @@ export default function AuthModal({
                       placeholder="Mínimo 6 caracteres"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
@@ -270,12 +270,12 @@ export default function AuthModal({
             {step === 2 && (
               <form onSubmit={handleNextStep} className="space-y-4">
                 <div className="text-center mb-4">
-                  <h3 className="text-lg font-bold text-slate-900">Dados Corporais</h3>
-                  <p className="text-xs text-slate-600 mt-1">Passo 2 de 5: Para calcularmos suas métricas</p>
+                  <h3 className="text-lg font-bold text-white">Dados Corporais</h3>
+                  <p className="text-xs text-slate-300 mt-1">Passo 2 de 5: Para calcularmos suas métricas</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Data de Nascimento</label>
+                  <label className="block text-xs font-medium text-slate-200 mb-1">Data de Nascimento</label>
                   <div className="relative">
                     <Calendar className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                     <input
@@ -283,14 +283,14 @@ export default function AuthModal({
                       required
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
-                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">Altura (cm)</label>
+                    <label className="block text-xs font-medium text-slate-200 mb-1">Altura (cm)</label>
                     <div className="relative">
                       <Ruler className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                       <input
@@ -299,13 +299,13 @@ export default function AuthModal({
                         placeholder="Ex: 175"
                         value={height}
                         onChange={(e) => setHeight(e.target.value)}
-                        className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">Peso Atual (kg)</label>
+                    <label className="block text-xs font-medium text-slate-200 mb-1">Peso Atual (kg)</label>
                     <div className="relative">
                       <Scale className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
                       <input
@@ -315,7 +315,7 @@ export default function AuthModal({
                         placeholder="Ex: 72.5"
                         value={weight}
                         onChange={(e) => setWeight(e.target.value)}
-                        className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-[#080d1a] border border-slate-800 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -325,7 +325,7 @@ export default function AuthModal({
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="w-1/3 bg-white hover:bg-slate-200 text-slate-700 text-xs font-bold py-3 rounded-xl transition"
+                    className="w-1/3 bg-white hover:bg-slate-200 text-slate-200 text-xs font-bold py-3 rounded-xl transition"
                   >
                     Voltar
                   </button>
@@ -343,12 +343,12 @@ export default function AuthModal({
             {step === 3 && (
               <form onSubmit={handleNextStep} className="space-y-4">
                 <div className="text-center mb-4">
-                  <h3 className="text-lg font-bold text-slate-900">Estilo de Vida & Dieta</h3>
-                  <p className="text-xs text-slate-600 mt-1">Passo 3 de 5: Como é a sua rotina atual?</p>
+                  <h3 className="text-lg font-bold text-white">Estilo de Vida & Dieta</h3>
+                  <p className="text-xs text-slate-300 mt-1">Passo 3 de 5: Como é a sua rotina atual?</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Tipo de Dieta Preferida</label>
+                  <label className="block text-xs font-medium text-slate-200 mb-1">Tipo de Dieta Preferida</label>
                   <div className="grid grid-cols-2 gap-2">
                     {['Flexível', 'Low Carb', 'Vegetariana / Vegana', 'Hipercalórica'].map((diet) => (
                       <button
@@ -358,7 +358,7 @@ export default function AuthModal({
                         className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-between ${
                           dietType === diet
                             ? 'border-amber-500 bg-emerald-600/10 text-emerald-600'
-                            : 'border-slate-800 bg-[#080d1a] text-slate-700 hover:border-slate-200'
+                            : 'border-slate-800 bg-[#080d1a] text-slate-200 hover:border-slate-200'
                         }`}
                       >
                         <span className="flex items-center gap-1.5">
@@ -371,12 +371,13 @@ export default function AuthModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Frequência de Treinos Semanais</label>
+                  <label className="block text-xs font-medium text-slate-200 mb-1">Frequência de Treinos Semanais</label>
                   <select
                     value={weeklyFrequency}
                     onChange={(e) => setWeeklyFrequency(e.target.value)}
-                    className="w-full bg-[#080d1a] border border-slate-800 rounded-xl p-2.5 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-[#080d1a] border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500"
                   >
+                    <option value="Sedentário (Não pratico exercícios)">Sedentário (Não pratico exercícios)</option>
                     <option value="1 a 2x por semana">1 a 2x por semana</option>
                     <option value="3 a 4x por semana">3 a 4x por semana</option>
                     <option value="5 a 6x por semana">5 a 6x por semana</option>
@@ -388,7 +389,7 @@ export default function AuthModal({
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="w-1/3 bg-white hover:bg-slate-200 text-slate-700 text-xs font-bold py-3 rounded-xl transition"
+                    className="w-1/3 bg-white hover:bg-slate-200 text-slate-200 text-xs font-bold py-3 rounded-xl transition"
                   >
                     Voltar
                   </button>
@@ -406,8 +407,8 @@ export default function AuthModal({
             {step === 4 && (
               <form onSubmit={handleNextStep} className="space-y-4">
                 <div className="text-center mb-3">
-                  <h3 className="text-lg font-bold text-slate-900">Quais são os seus Objetivos?</h3>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <h3 className="text-lg font-bold text-white">Quais são os seus Objetivos?</h3>
+                  <p className="text-xs text-slate-300 mt-0.5">
                     Passo 4 de 5: Selecione <span className="text-emerald-600 font-bold">até 3 opções</span> ({selectedGoals.length}/3 selecionadas)
                   </p>
                 </div>
@@ -423,7 +424,7 @@ export default function AuthModal({
                         className={`w-full p-3 rounded-xl text-left border text-xs font-bold transition flex items-center justify-between ${
                           isSelected
                             ? 'border-amber-500 bg-emerald-600/10 text-emerald-600'
-                            : 'border-slate-800 bg-[#080d1a] text-slate-700 hover:border-slate-200'
+                            : 'border-slate-800 bg-[#080d1a] text-slate-200 hover:border-slate-200'
                         }`}
                       >
                         <span className="flex items-center gap-2">
@@ -440,7 +441,7 @@ export default function AuthModal({
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="w-1/3 bg-white hover:bg-slate-200 text-slate-700 text-xs font-bold py-3 rounded-xl transition"
+                    className="w-1/3 bg-white hover:bg-slate-200 text-slate-200 text-xs font-bold py-3 rounded-xl transition"
                   >
                     Voltar
                   </button>
@@ -462,12 +463,12 @@ export default function AuthModal({
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900">Perfil Configurado, {name || 'Atleta'}!</h3>
-                  <p className="text-xs text-slate-600 mt-1">Suas metas e dados de saúde foram salvos com sucesso.</p>
+                  <h3 className="text-xl font-bold text-white">Perfil Configurado, {name || 'Atleta'}!</h3>
+                  <p className="text-xs text-slate-300 mt-1">Suas metas e dados de saúde foram salvos com sucesso.</p>
                 </div>
 
                 <div className="bg-[#080d1a] border border-amber-500/30 p-4 rounded-xl text-center">
-                  <span className="text-xs text-slate-600 block">Bônus de Boas-Vindas MAVITAI</span>
+                  <span className="text-xs text-slate-300 block">Bônus de Boas-Vindas MAVITAI</span>
                   <span className="text-2xl font-black text-emerald-600">+50 Mavicoins</span>
                 </div>
 

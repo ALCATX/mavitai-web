@@ -28,20 +28,59 @@ export default function Dashboard() {
   const [userName, setUserName] = useState<string>('');
   const [showUpsellBanner, setShowUpsellBanner] = useState<boolean>(false);
   const [claimedChallenges, setClaimedChallenges] = useState<Record<string, boolean>>({});
+  const [dailyScansUsed, setDailyScansUsed] = useState<number>(0);
 
   const isAuthenticated = userName.trim().length > 0;
   const { remainingSeconds, isTrialExpired } = useGuestTrial(isAuthenticated);
   const authBlocking = !isAuthenticated && isTrialExpired;
 
-  const handleAccessFitt = () => {
-    if (userPlan !== 'DIAMOND') {
-      setShowUpsellBanner(true);
-    } else {
-      setShowUpsellBanner(false);
-      setIsScannerOpen(true);
-    }
-  };
+  const getTodayKey = () => new Date().toISOString().slice(0, 10);
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('mavitai_scanner_usage');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.date === getTodayKey() && typeof parsed.count === 'number') {
+          setDailyScansUsed(parsed.count);
+        } else {
+          localStorage.setItem('mavitai_scanner_usage', JSON.stringify({ date: getTodayKey(), count: 0 }));
+          setDailyScansUsed(0);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const dailyScanLimit = userPlan === 'DIAMOND' ? Infinity : userPlan === 'FREE' ? 1 : 3;
+  const remainingScans = userPlan === 'DIAMOND' ? Infinity : Math.max(0, dailyScanLimit - dailyScansUsed);
+
+  const handleAccessFitt = () => {
+    const today = getTodayKey();
+    let currentCount = dailyScansUsed;
+
+    try {
+      const saved = localStorage.getItem('mavitai_scanner_usage');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        currentCount = parsed.date === today ? parsed.count : 0;
+      }
+    } catch {}
+
+    if (userPlan !== 'DIAMOND' && currentCount >= dailyScanLimit) {
+      setDailyScansUsed(currentCount);
+      setShowUpsellBanner(true);
+      return;
+    }
+
+    const nextCount = currentCount + 1;
+    setDailyScansUsed(nextCount);
+    try {
+      localStorage.setItem('mavitai_scanner_usage', JSON.stringify({ date: today, count: nextCount }));
+    } catch {}
+
+    setShowUpsellBanner(false);
+    setIsScannerOpen(true);
+  };
   useEffect(() => {
     if (!authBlocking) return;
     setAuthNotice('O tempo de visitante acabou. Entre ou crie uma conta para continuar.');
@@ -162,28 +201,40 @@ export default function Dashboard() {
 
       {/* CARDS PRINCIPAIS */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="md:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 flex flex-col justify-between">
+      <div className="md:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-4 gap-2 flex-wrap">
               <h2 className="text-2xl font-bold flex items-center gap-2">
-                🤖 IA Mavi <span className="text-xs bg-emerald-600/20 text-emerald-600 px-2 py-0.5 rounded-full border border-amber-500/30">Exclusivo Diamante</span>
+                🤖 IA Mavi{' '}
+                <span className="text-xs bg-emerald-600/20 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                  {userPlan === 'DIAMOND'
+                    ? 'Ilimitado (Diamante)'
+                    : `${remainingScans} de ${dailyScanLimit} restante${remainingScans === 1 ? '' : 's'} hoje`}
+                </span>
               </h2>
             </div>
             <p className="text-slate-700 text-sm mb-4">
-              Tire uma foto do seu prato e nossa Inteligência Artificial calcula instantaneamente as calorias e macronutrientes.
+              Tire uma foto do seu prato e nossa Inteligência Artificial calcula instantaneamente as calorias e macronutrientes.{' '}
+              <span className="text-xs text-slate-500">
+                (1x grátis/dia no Free • 3x/dia no Básico • Ilimitado no Diamante)
+              </span>
             </p>
 
-            {showUpsellBanner && userPlan !== 'DIAMOND' && (
-              <div className="mb-4 p-4 bg-emerald-600/10 border border-amber-500/40 rounded-xl">
-                <p className="text-emerald-600 font-bold text-sm">🔒 A IA Mavi é um recurso exclusivo do Plano Diamante!</p>
-                <p className="text-xs text-slate-700 mt-1">
-                  Faça o upgrade para o Plano Diamante para escanear suas refeições sem limites.
+            {showUpsellBanner && userPlan !== 'DIAMOND' && remainingScans === 0 && (
+              <div className="mb-4 p-4 bg-emerald-600/10 border border-emerald-500/40 rounded-xl">
+                <p className="text-emerald-800 font-bold text-sm">
+                  🔒 Você atingiu o limite diário do plano {userPlan === 'FREE' ? 'Free (1/dia)' : 'Básico (3/dia)'}!
                 </p>
-                <button 
+                <p className="text-xs text-slate-700 mt-1">
+                  {userPlan === 'FREE'
+                    ? 'Faça upgrade para o Básico (3 escaneamentos/dia) ou Diamante (ilimitado) para continuar hoje.'
+                    : 'Faça upgrade para o Plano Diamante para escanear suas refeições sem limites.'}
+                </p>
+                <button
                   onClick={() => setIsModalOpen(true)}
                   className="mt-3 text-xs bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg"
                 >
-                  Fazer Upgrade para Diamante
+                  Fazer Upgrade de Plano
                 </button>
               </div>
             )}
@@ -191,9 +242,11 @@ export default function Dashboard() {
 
           <button
             onClick={handleAccessFitt}
-            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-extrabold py-3 rounded-xl transition shadow-lg"
+            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-slate-950 font-extrabold py-3 rounded-xl transition shadow-lg"
           >
-            Escanear Prato com Mavi
+            {userPlan !== 'DIAMOND' && remainingScans === 0
+              ? 'Limite Diário Atingido — Fazer Upgrade'
+              : 'Escanear Prato com Mavi'}
           </button>
         </div>
 
