@@ -20,7 +20,7 @@ const DAILY_CHALLENGES = [
 
 export default function Dashboard() {
   const [userPlan, setUserPlan] = useState<PlanType>('FREE');
-  const [mavicoins, setMavicoins] = useState<number>(150);
+  const [mavicoins, setMavicoins] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -206,7 +206,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => claimDailyChallenge(challenge.id, challenge.reward)}
-                  className="text-emerald-600 font-bold"
+                  className="px-3 py-1.5 rounded-lg bg-emerald-950 text-emerald-300 hover:bg-emerald-900 font-bold border border-emerald-500/40"
                 >
                   {claimedChallenges[challenge.id] ? 'Resgatado' : `+${challenge.reward} MV`}
                 </button>
