@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authNotice, setAuthNotice] = useState<string | undefined>(undefined);
   const [userName, setUserName] = useState<string>('');
+  const [userWeight, setUserWeight] = useState<number>(70);
   const [showUpsellBanner, setShowUpsellBanner] = useState<boolean>(false);
   const [claimedChallenges, setClaimedChallenges] = useState<Record<string, boolean>>({});
   const [dailyScansUsed, setDailyScansUsed] = useState<number>(0);
@@ -109,10 +110,13 @@ export default function Dashboard() {
     setAuthNotice(undefined);
   };
 
-  const handleLoginSuccess = (name: string, bonusMavicoins: number = 0) => {
+  const handleLoginSuccess = (name: string, bonusMavicoins: number = 0, weightKg?: number) => {
     setUserName(name);
     if (bonusMavicoins > 0) {
       setMavicoins((prev) => prev + bonusMavicoins);
+    }
+    if (weightKg && weightKg > 0) {
+      setUserWeight(weightKg);
     }
     setIsAuthModalOpen(false);
     setAuthNotice(undefined);
@@ -269,7 +273,7 @@ export default function Dashboard() {
         </div>
       </div>
 {/* MONITOR DE CORRIDA */}
-<CorridaCard onEarnMavicoins={requestMavicoins} />
+<CorridaCard onEarnMavicoins={requestMavicoins} userWeight={userWeight} />
       {/* SEÇÃO DO SHORTS FEED (VÍDEOS CURTOS) */}
       <section className="max-w-6xl mx-auto border-t border-slate-800 pt-8">
         <div className="flex items-center justify-between mb-6">

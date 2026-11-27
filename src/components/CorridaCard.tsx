@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 interface CorridaCardProps {
   onEarnMavicoins: (amount: number) => void;
+  userWeight?: number;
 }
 
 type Modalidade = 'corrida-rua' | 'esteira' | 'bike-rua' | 'bike-academia';
@@ -64,7 +65,7 @@ function calcularDistanciaKm(lat1: number, lon1: number, lat2: number, lon2: num
   return R * c;
 }
 
-export default function CorridaCard({ onEarnMavicoins }: CorridaCardProps) {
+export default function CorridaCard({ onEarnMavicoins, userWeight }: CorridaCardProps) {
   const [modalidade, setModalidade] = useState<Modalidade>('corrida-rua');
   const [intensidadeBike, setIntensidadeBike] = useState<IntensidadeBike>('moderada');
   const [ativo, setAtivo] = useState(false);
@@ -72,7 +73,13 @@ export default function CorridaCard({ onEarnMavicoins }: CorridaCardProps) {
   const [distanciaGpsKm, setDistanciaGpsKm] = useState(0);
   const [distanciaIndoorInput, setDistanciaIndoorInput] = useState('');
   const [velocidadeMediaInput, setVelocidadeMediaInput] = useState('');
-  const [pesoKg, setPesoKg] = useState(70);
+  const [pesoKg, setPesoKg] = useState<number>(userWeight && userWeight > 0 ? userWeight : 70);
+
+  useEffect(() => {
+    if (typeof userWeight === 'number' && userWeight > 0) {
+      setPesoKg(userWeight);
+    }
+  }, [userWeight]);
   const [erroGps, setErroGps] = useState<string | null>(null);
   const [ultimoResumo, setUltimoResumo] = useState<{
     atividade: string;

@@ -6,7 +6,7 @@ import { X, User, Mail, Lock, Target, Gift, ArrowRight, CheckCircle2, Calendar, 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: (userName: string, bonusFitcoins?: number) => void;
+  onLoginSuccess: (userName: string, bonusFitcoins?: number, weightKg?: number) => void;
   blocking?: boolean;
   notice?: string;
 }
@@ -77,7 +77,12 @@ export default function AuthModal({
   };
 
   const handleCompleteRegister = () => {
-    onLoginSuccess(name || 'Novo Atleta', 50);
+    const parsedWeight = parseFloat(weight.replace(',', '.'));
+    onLoginSuccess(
+      name || 'Novo Atleta',
+      50,
+      !Number.isNaN(parsedWeight) && parsedWeight > 0 ? parsedWeight : undefined
+    );
     onClose();
     setStep(1);
   };
